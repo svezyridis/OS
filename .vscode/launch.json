@@ -34,7 +34,7 @@
         },
         {
             "name": "(gdb) Launch",
-            "type": "cppdbg",
+            "type": "cppdbg", 
             "request": "launch",
             "program": "/home/savvas/OS/ch3/a.out",
             "args": [
