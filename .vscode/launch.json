@@ -5,11 +5,42 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "type": "java",
+            "name": "CodeLens (Launch) - EchoClient",
+            "request": "launch",
+            "mainClass": "ch3.EchoClient",
+            "projectName": "OS_b2a2e0d2"
+        },
+        {
+            "type": "java",
+            "name": "CodeLens (Launch) - EchoServer",
+            "request": "launch",
+            "mainClass": "ch3.EchoServer",
+            "projectName": "OS_b2a2e0d2"
+        },
+        {
+            "type": "java",
+            "name": "CodeLens (Launch) - QuoteOfTheDayClient",
+            "request": "launch",
+            "mainClass": "ch3.QuoteOfTheDayClient",
+            "projectName": "OS_b2a2e0d2"
+        },
+        {
+            "type": "java",
+            "name": "CodeLens (Launch) - QuoteOfTheDayServer",
+            "request": "launch",
+            "mainClass": "ch3.QuoteOfTheDayServer",
+            "projectName": "OS_b2a2e0d2"
+        },
+        {
             "name": "(gdb) Launch",
             "type": "cppdbg",
             "request": "launch",
             "program": "/home/savvas/OS/ch3/a.out",
-            "args": ["a.out","ls"],
+            "args": [
+                "a.out",
+                "ls"
+            ],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "environment": [],

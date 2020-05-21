@@ -6,7 +6,10 @@
 #include <fcntl.h>
 #include <sys/time.h>
 #include <string.h>
+#include <sys/wait.h>
+
 const char *name = "Collatz";
+#define SIZE 4096 //arbitraty size that will not work if num will need more than 4095 iterations
 
 int main(int argc, char const *argv[])
 {
@@ -22,29 +25,40 @@ int main(int argc, char const *argv[])
         printf("arguement must be a positive integer\n");
         exit(1);
     }
-    int 
     int fd;
     fd = shm_open(name, O_CREAT | O_RDWR, 0666);
-    ftruncate(fd, sizeof(struct timeval));
+    ftruncate(fd, SIZE * sizeof(int));
     pid_t pid = fork();
     if (pid == 0)
     {
-        struct timeval *ptr = (struct timeval *)
-            mmap(0, sizeof(struct timeval), PROT_WRITE, MAP_SHARED, fd, 0);
-        gettimeofday(&start, NULL);
-        *ptr = start;
-        char file[25] = "/bin/";
-        strcat(file, argv[1]);
-        execlp(file, argv[1], NULL);
+        int *ptr = (int *)
+            mmap(0, SIZE * sizeof(int), PROT_WRITE, MAP_SHARED, fd, 0);
+        *ptr = num;
+        while (num != 1)
+        {
+            if (num % 2 == 1)
+            {
+                num = 3 * num + 1;
+            }
+            else
+            {
+                num = num / 2;
+            }
+            ptr++;
+            *ptr = num;
+        }
     }
     else
     {
         wait(NULL);
-        gettimeofday(&end, NULL);
-        struct timeval *ptr = (struct timeval *)
-            mmap(0, sizeof(struct timeval), PROT_READ, MAP_SHARED, fd, 0);
-        printf("%ld microseconds\n", end.tv_usec - ptr->tv_usec);
-        shm_unlink(name);
+        int *ptr = (int *)
+            mmap(0, SIZE * sizeof(int), PROT_READ, MAP_SHARED, fd, 0);
+        while (*ptr != 1)
+        {
+            printf("%d\n", *ptr);
+            ptr++;
+        }
+        printf("%d\n", *ptr);
     }
 
     return 0;
