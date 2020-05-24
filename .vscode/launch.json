@@ -34,14 +34,14 @@
         },
         {
             "name": "(gdb) Launch",
-            "type": "cppdbg", 
+            "type": "cppdbg",
             "request": "launch",
             "program": "/home/savvas/OS/ch3/a.out",
             "args": [
                 "a.out",
                 "ls"
             ],
-            "stopAtEntry": false,
+            "stopAtEntry": true,
             "cwd": "${workspaceFolder}",
             "environment": [],
             "externalConsole": false,
