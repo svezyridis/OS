@@ -3,17 +3,19 @@
 #include <linux/kernel.h>
 #include <linux/proc_fs.h>
 #include <linux/uaccess.h>
-#include <linux/jiffies.h>
+#include <linux/slab.h>
+
 
 #define BUFFER_SIZE 128
 
-#define PROC_NAME "ex1"
+#define PROC_NAME "pid"
 
 /**
  * Function prototypes
  */
 static ssize_t proc_read(struct file *file, char *buf, size_t count, loff_t *pos);
-unsigned long start_time;
+static ssize_t proc_write(struct file *file, const char __user *usr_buf, size_t count, loff_t *pos);
+long id = -1;
 static struct file_operations proc_ops = {
     .owner = THIS_MODULE,
     .read = proc_read,
@@ -23,14 +25,12 @@ static struct file_operations proc_ops = {
 static int proc_init(void)
 {
 
-	// creates the /proc/hello entry
+	// creates the /proc/pid entry
 	// the following function call is a wrapper for
 	// proc_create_data() passing NULL as the last argument
 	proc_create(PROC_NAME, 0, NULL, &proc_ops);
 
 	printk(KERN_INFO "/proc/%s created\n", PROC_NAME);
-	start_time = jiffies;
-
 	return 0;
 }
 
@@ -44,18 +44,17 @@ static void proc_exit(void)
 	printk(KERN_INFO "/proc/%s removed\n", PROC_NAME);
 }
 
-ssize_t proc_write(struct file *file, char __user *usr_buf, size_t count, loff_t *pos)
+static ssize_t proc_write(struct file *file, const char __user *usr_buf, size_t count, loff_t *pos)
 {
-	int rv = 0;
 	char *k_mem;
 	//alocate kernel memory
 	k_mem = kmalloc(count, GFP_KERNEL);
 	//copies user space usr_buf to kenrel memory
 	copy_from_user(k_mem, usr_buf, count);
-	printk(KERN_INFO, "%s\n", k_mem);
-	long number;
-	kstrtol(k_mem, 10, &number);
+	printk(KERN_INFO "%s\n", k_mem);
+	kstrtol(k_mem, 10, &id);
 	kfree(k_mem);
+	return count;
 }
 
 /**
@@ -78,6 +77,10 @@ static ssize_t proc_read(struct file *file, char __user *usr_buf, size_t count, 
 	int rv = 0;
 	char buffer[BUFFER_SIZE];
 	static int completed = 0;
+	struct pid *process = find_vpid((int)id);
+	struct task_struct *task = pid_task(process, PIDTYPE_PID);
+	if (task == NULL)
+		return 0;
 
 	if (completed)
 	{
@@ -87,7 +90,7 @@ static ssize_t proc_read(struct file *file, char __user *usr_buf, size_t count, 
 
 	completed = 1;
 
-	rv = sprintf(buffer, "%lu\n", (jiffies - start_time) / HZ);
+	rv = sprintf(buffer, "command= %s pid=%ld state=%ld \n", task->comm, id, task->state);
 
 	// copies the contents of buffer to userspace usr_buf
 	copy_to_user(usr_buf, buffer, rv);
@@ -100,5 +103,5 @@ module_init(proc_init);
 module_exit(proc_exit);
 
 MODULE_LICENSE("GPL");
-MODULE_DESCRIPTION("Jiffies reporter");
+MODULE_DESCRIPTION("process information");
 MODULE_AUTHOR("SGG");
