@@ -9,24 +9,31 @@
 #include <linux/list.h>
 
 #define PROC_NAME "process list"
-
-struct task_struct *task, *tsk;
+struct task_struct *task;
 struct list_head *list;
-/* This function is called when the module is loaded. */
-
-static int proc_init(void)
+// function for DFS print, first print parent then all children recursively
+static void print(struct task_struct *task)
 {
-	printk(KERN_INFO "/proc/%s created\n", PROC_NAME);
-	/*for_each_process(task)
-	{
-		printk(KERN_INFO "%s %ld %d \n", task->comm, task->state, task->pid);
-	}*/
-	task = &init_task;
-	list_for_each(list, &task->children)
+	struct list_head *list;
+	struct task_struct *tsk;
+	printk(KERN_INFO "%s %ld %d \n", task->comm, task->state, task->pid);
+	list_for_each(list, &(task->children))
 	{
 		tsk = list_entry(list, struct task_struct, sibling);
-		printk(KERN_INFO "%s %ld %d \n", tsk->comm, tsk->state, tsk->pid);
+		print(tsk);
 	}
+}
+
+/* This function is called when the module is loaded. */
+static int proc_init(void)
+{
+	printk(KERN_INFO "%s started\n", PROC_NAME);
+	for_each_process(task)
+	{
+		printk(KERN_INFO "%s %ld %d \n", task->comm, task->state, task->pid);
+	}
+	printk(KERN_INFO "printing with DFS \n");
+	print(&init_task);
 	return 0;
 }
 
@@ -34,7 +41,7 @@ static int proc_init(void)
 static void proc_exit(void)
 {
 
-	printk(KERN_INFO "/proc/%s removed\n", PROC_NAME);
+	printk(KERN_INFO "%s removed\n", PROC_NAME);
 }
 
 /* Macros for registering module entry and exit points. */
