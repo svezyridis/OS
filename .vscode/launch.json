@@ -6,6 +6,20 @@
     "configurations": [
         {
             "type": "java",
+            "name": "CodeLens (Launch) - ForkJoinSort",
+            "request": "launch",
+            "mainClass": "ch4.ForkJoinSort",
+            "projectName": "OS_b2a2e0d2"
+        },
+        {
+            "type": "java",
+            "name": "CodeLens (Launch) - Exercise26",
+            "request": "launch",
+            "mainClass": "ch4.Exercise26",
+            "projectName": "OS_b2a2e0d2"
+        },
+        {
+            "type": "java",
             "name": "CodeLens (Launch) - EchoClient",
             "request": "launch",
             "mainClass": "ch3.EchoClient",
